@@ -31,8 +31,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $database = new Database();
             $db = $database->getConnection();
 
-            // 3. Gunakan Prepared Statement
-            $query = "SELECT nip, nm_pegawai, user_login, pass_login, level FROM rsi_user WHERE user_login = :user_login AND is_aktif = '1' LIMIT 1";
+            // 3. Gunakan Prepared Statement (Query diperbarui dengan id_jabatan)
+            $query = "SELECT nip, nm_pegawai, user_login, pass_login, level, pelihat, kd_unit, id_jabatan FROM rsi_user WHERE user_login = :user_login AND is_aktif = '1' LIMIT 1";
             $stmt = $db->prepare($query);
             $stmt->bindParam(':user_login', $user_login, PDO::PARAM_STR);
             $stmt->execute();
@@ -41,10 +41,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
                 if (password_verify($pass_login, $user['pass_login'])) {
+                    // Session diperbarui dengan data tambahan termasuk id_jabatan
                     $_SESSION['user'] = [
                         'user_login' => $user['user_login'],
                         'nm_pegawai' => $user['nm_pegawai'],
-                        'level' => $user['level']
+                        'level'      => $user['level'],
+                        'pelihat'    => $user['pelihat'],
+                        'kd_unit'    => $user['kd_unit'],
+                        'id_jabatan' => $user['id_jabatan']
                     ];
                     session_regenerate_id(true);
                     header('Location: index.php');
